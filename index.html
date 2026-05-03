@@ -6,166 +6,250 @@
     <title>AeroOS Mobile</title>
     <style>
         :root {
-            --gloss: rgba(255, 255, 255, 0.3);
-            --glass: rgba(255, 255, 255, 0.15);
-            --border: rgba(255, 255, 255, 0.4);
+            --glass: rgba(255, 255, 255, 0.2);
+            --aero-border: rgba(255, 255, 255, 0.6);
+            --title-text: #004a99;
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
         body {
-            background: linear-gradient(135deg, #0078d7, #83be00, #00d4ff);
-            background-image: url('https://images.unsplash.com/photo-1500673922987-e212871fec22?auto=format&fit=crop&q=80&w=2070'); /* Vibrant nature shot */
-            background-size: cover;
-            background-position: center;
+            margin: 0;
             height: 100vh;
+            /* Authentic Frutiger Aero Wallpaper */
+            background: url('https://web.archive.org/web/20240315000000im_/https://wallpapercave.com/wp/wp2555312.jpg') no-repeat center center fixed;
+            background-size: cover;
             overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            touch-action: none;
+        }
+
+        /* Window Styling */
+        .window {
+            position: absolute;
+            background: var(--glass);
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
+            border: 1.5px solid var(--aero-border);
+            border-radius: 12px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3), inset 0 0 10px rgba(255,255,255,0.4);
             display: flex;
             flex-direction: column;
-            align-items: center;
-        }
-
-        /* The App Container (Iframe) */
-        .window {
-            display: none;
-            position: absolute;
-            top: 5%;
-            left: 5%;
-            width: 90%;
-            height: 80%;
-            background: var(--glass);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3), inset 0 0 20px var(--gloss);
-            flex-direction: column;
-            overflow: hidden;
             z-index: 10;
+            overflow: hidden;
         }
 
-        .window-header {
-            padding: 10px 20px;
-            background: linear-gradient(to bottom, rgba(255,255,255,0.4), rgba(255,255,255,0.1));
+        /* Glossy Reflection Overlay */
+        .window::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 50%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 60%);
+            pointer-events: none;
+        }
+
+        .title-bar {
+            padding: 10px 15px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.1) 100%);
+            cursor: move;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            z-index: 5;
         }
 
-        .close-btn {
-            background: rgba(255, 50, 50, 0.7);
-            border: none;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            cursor: pointer;
+        .title-text { font-weight: bold; color: var(--title-text); text-shadow: 0 1px 1px white; }
+
+        .controls { display: flex; gap: 8px; }
+        .btn { width: 24px; height: 18px; border-radius: 3px; cursor: pointer; border: 1px solid rgba(0,0,0,0.2); }
+        .min { background: #ffbd2e; } .max { background: #27c93f; } .close { background: #ff5f56; }
+
+        .content { flex-grow: 1; background: white; position: relative; z-index: 1; overflow-y: auto; }
+        iframe { width: 100%; height: 100%; border: none; }
+
+        /* Game Grid Styling */
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 15px;
+            padding: 20px;
+            background: rgba(255,255,255,0.5);
         }
 
-        iframe {
-            flex-grow: 1;
-            border: none;
-            width: 100%;
-            height: 100%;
-            background: white;
-        }
-
-        /* Floating Dock */
-        .dock {
-            position: fixed;
-            bottom: 20px;
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--border);
-            padding: 10px 20px;
-            border-radius: 25px;
+        .game-item {
             display: flex;
-            gap: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            z-index: 100;
-        }
-
-        .icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
-            border-radius: 12px;
-            display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
             cursor: pointer;
-            transition: transform 0.2s;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2), inset 0 -3px 5px rgba(0,0,0,0.1);
-            font-size: 24px;
+            text-align: center;
+            transition: transform 0.1s;
+        }
+        .game-item:active { transform: scale(0.9); }
+        .game-icon {
+            width: 60px; height: 60px;
+            background: linear-gradient(135deg, #fff, #d9f2ff);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 32px;
+            margin-bottom: 5px;
             border: 2px solid white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .game-item span { font-size: 11px; font-weight: 600; color: #003366; }
+
+        /* Dock / Taskbar */
+        .dock {
+            position: fixed; bottom: 20px; left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--aero-border);
+            padding: 10px 25px;
+            border-radius: 20px;
+            display: flex; gap: 20px;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
-        .icon:active { transform: scale(0.9); }
-
-        .icon img { width: 40px; height: 40px; }
-
-        /* Floating Bubbles Decoration */
-        .bubble {
-            position: absolute;
-            background: var(--gloss);
-            border: 1px solid rgba(255,255,255,0.5);
-            border-radius: 50%;
-            pointer-events: none;
-            animation: float 10s infinite ease-in-out;
+        .dock-app {
+            width: 50px; height: 50px;
+            background: white;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border: 1px solid #eee;
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0) translateX(0); }
-            50% { transform: translateY(-50px) translateX(20px); }
+        /* Maximized Utility */
+        .is-maximized {
+            width: 100vw !important; height: calc(100vh - 85px) !important;
+            top: 0 !important; left: 0 !important; border-radius: 0;
         }
     </style>
 </head>
 <body>
 
-    <!-- Decorative Bubbles -->
-    <div class="bubble" style="width: 100px; height: 100px; top: 10%; left: 15%;"></div>
-    <div class="bubble" style="width: 60px; height: 60px; top: 60%; left: 80%;"></div>
-
-    <!-- Rammerhead Window -->
-    <div id="rammerhead" class="window">
-        <div class="window-header">
-            <span>Browser</span>
-            <button class="close-btn" onclick="closeApp('rammerhead')">X</button>
+    <!-- Browser -->
+    <div id="win-browser" class="window" style="width: 500px; height: 400px; top: 40px; left: 40px; display: flex;">
+        <div class="title-bar" onmousedown="dragStart(event, 'win-browser')" ontouchstart="dragStart(event, 'win-browser')">
+            <span class="title-text">🌐 Rammerhead</span>
+            <div class="controls">
+                <div class="btn max" onclick="toggleMax('win-browser')"></div>
+                <div class="btn close" onclick="toggleWin('win-browser')"></div>
+            </div>
         </div>
-        <iframe src="https://browser.rammerhead.org"></iframe>
+        <div class="content"><iframe src="https://browser.rammerhead.org"></iframe></div>
     </div>
 
-    <!-- Snow Rider Window -->
-    <div id="snowrider" class="window">
-        <div class="window-header">
-            <span>Snow Rider 3D</span>
-            <button class="close-btn" onclick="closeApp('snowrider')">X</button>
+    <!-- Games Folder -->
+    <div id="win-games" class="window" style="width: 420px; height: 350px; top: 100px; left: 600px; display: flex;">
+        <div class="title-bar" onmousedown="dragStart(event, 'win-games')" ontouchstart="dragStart(event, 'win-games')">
+            <span class="title-text">🎮 Games Center</span>
+            <div class="controls">
+                <div class="btn max" onclick="toggleMax('win-games')"></div>
+                <div class="btn close" onclick="toggleWin('win-games')"></div>
+            </div>
         </div>
-        <iframe src="https://itsvijaysingh.github.io/Snow-Rider3D/"></iframe>
+        <div class="content">
+            <div class="game-grid">
+                <div class="game-item" onclick="launchGame('🛷 Snow Rider', 'https://itsvijaysingh.github.io/Snow-Rider3D/')">
+                    <div class="game-icon">🛷</div><span>Snow Rider</span>
+                </div>
+                <div class="game-item" onclick="launchGame('🏃 Subway Surfers', 'https://subwaysurfers.com.co/')">
+                    <div class="game-icon">🏃</div><span>Subway Surf</span>
+                </div>
+                <div class="game-item" onclick="launchGame('⚽ Soccer Random', 'https://realsoccer-random.github.io/')">
+                    <div class="game-icon">⚽</div><span>Soccer Random</span>
+                </div>
+                <div class="game-item" onclick="launchGame('🧱 Minecraft', 'https://eaglercraft.com/mc/1.8.8/')">
+                    <div class="game-icon">🧱</div><span>Minecraft</span>
+                </div>
+                <div class="game-item" onclick="launchGame('🏍️ Moto X3M', 'https://moto-x3m.io/')">
+                    <div class="game-icon">🏍️</div><span>Moto X3M</span>
+                </div>
+                <div class="game-item" onclick="launchGame('🏈 Retro Bowl', 'https://game316009.konggames.com/gamefile/316009/11/RetroBowl.html')">
+                    <div class="game-icon">🏈</div><span>Retro Bowl</span>
+                </div>
+                <div class="game-item" onclick="launchGame('🔫 1v1.LOL', 'https://1v1.lol/')">
+                    <div class="game-icon">🔫</div><span>1v1.LOL</span>
+                </div>
+                <div class="game-item" onclick="launchGame('🟢 Slope', 'https://krunkerio.net/slope/')">
+                    <div class="game-icon">🟢</div><span>Slope</span>
+                </div>
+                <div class="game-item" onclick="launchGame('🔢 2048', 'https://play2048.co/')">
+                    <div class="game-icon">🔢</div><span>2048</span>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- The Dock -->
+    <!-- Game Player -->
+    <div id="win-player" class="window" style="width: 85%; height: 80%; top: 5%; left: 7.5%; display: none;">
+        <div class="title-bar" onmousedown="dragStart(event, 'win-player')" ontouchstart="dragStart(event, 'win-player')">
+            <span id="player-title" class="title-text">Playing...</span>
+            <div class="controls">
+                <div class="btn max" onclick="toggleMax('win-player')"></div>
+                <div class="btn close" onclick="closePlayer()"></div>
+            </div>
+        </div>
+        <div class="content"><iframe id="player-frame" src=""></iframe></div>
+    </div>
+
+    <!-- Dock -->
     <div class="dock">
-        <div class="icon" onclick="openApp('rammerhead')" title="Browser">🌐</div>
-        <div class="icon" onclick="openApp('snowrider')" title="Snow Rider 3D">🛷</div>
+        <div class="dock-app" onclick="toggleWin('win-browser')">🌐</div>
+        <div class="dock-app" onclick="toggleWin('win-games')">🎮</div>
     </div>
 
     <script>
-        function openApp(id) {
-            // Close other windows first to keep it clean on iPad
-            document.querySelectorAll('.window').forEach(win => win.style.display = 'none');
-            document.getElementById(id).style.display = 'flex';
+        let activeWin = null;
+        let offset = { x: 0, y: 0 };
+        let topZ = 100;
+
+        function toggleWin(id) {
+            const win = document.getElementById(id);
+            win.style.display = (win.style.display === 'none') ? 'flex' : 'none';
+            if(win.style.display === 'flex') bringFront(win);
         }
 
-        function closeApp(id) {
-            document.getElementById(id).style.display = 'none';
+        function toggleMax(id) { document.getElementById(id).classList.toggle('is-maximized'); }
+
+        function bringFront(win) { win.style.zIndex = ++topZ; }
+
+        function launchGame(name, url) {
+            document.getElementById('player-title').innerText = name;
+            document.getElementById('player-frame').src = url;
+            document.getElementById('win-player').style.display = 'flex';
+            bringFront(document.getElementById('win-player'));
         }
 
-        // Prevent iPad bounce scrolling
-        document.addEventListener('touchmove', function(e) {
-            if (e.target.tagName !== 'IFRAME') {
-                e.preventDefault();
-            }
-        }, { passive: false });
+        function closePlayer() {
+            document.getElementById('win-player').style.display = 'none';
+            document.getElementById('player-frame').src = "";
+        }
+
+        function dragStart(e, id) {
+            activeWin = document.getElementById(id);
+            bringFront(activeWin);
+            if (activeWin.classList.contains('is-maximized')) return;
+            const cx = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const cy = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+            const r = activeWin.getBoundingClientRect();
+            offset.x = cx - r.left; offset.y = cy - r.top;
+            document.addEventListener(e.type.includes('touch') ? 'touchmove' : 'mousemove', drag, {passive: false});
+            document.addEventListener(e.type.includes('touch') ? 'touchend' : 'mouseup', stop);
+        }
+
+        function drag(e) {
+            if (!activeWin) return;
+            e.preventDefault();
+            const cx = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const cy = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+            activeWin.style.left = (cx - offset.x) + 'px';
+            activeWin.style.top = (cy - offset.y) + 'px';
+        }
+
+        function stop() { activeWin = null; }
     </script>
 </body>
 </html>
