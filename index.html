@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>macOS - iPad Suite</title>
+    <title>macOS - Desktop Edition</title>
     <style>
         :root {
             --mac-shadow: 0 25px 50px rgba(0,0,0,0.5);
@@ -22,69 +22,90 @@
             touch-action: none;
         }
 
-        /* Top Menu Bar */
+        /* Desktop Grid */
+        .desktop-icons {
+            position: absolute;
+            top: 50px;
+            right: 20px;
+            display: grid;
+            grid-template-columns: repeat(1, 100px);
+            grid-auto-flow: row;
+            gap: 20px;
+            z-index: 5;
+        }
+
+        .shortcut {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .shortcut:active { background: rgba(255,255,255,0.2); }
+
+        .shortcut-icon {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            margin-bottom: 5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .shortcut-label { font-size: 12px; font-weight: 500; }
+
         .menu-bar {
             height: 30px;
             background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-            color: white;
-            font-size: 14px;
-            border-bottom: 0.5px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            display: flex; align-items: center; padding: 0 20px;
+            color: white; font-size: 14px; border-bottom: 0.5px solid rgba(255,255,255,0.1);
             z-index: 9999;
         }
 
-        /* Reusable Window Style */
         .window {
-            position: absolute;
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: var(--mac-shadow);
-            display: none;
-            flex-direction: column;
-            overflow: hidden;
-            border: 0.5px solid rgba(0,0,0,0.2);
-            transition: width 0.2s, height 0.2s;
+            position: absolute; background: #fff; border-radius: 12px;
+            box-shadow: var(--mac-shadow); display: none; flex-direction: column;
+            overflow: hidden; border: 0.5px solid rgba(0,0,0,0.2);
         }
 
         .title-bar {
-            height: 38px;
-            background: var(--title-bg);
-            display: flex;
-            align-items: center;
-            padding: 0 12px;
-            cursor: grab;
-            flex-shrink: 0;
+            height: 44px; background: var(--title-bg); display: flex;
+            align-items: center; padding: 0 15px; cursor: grab; flex-shrink: 0;
         }
 
-        .mac-controls { display: flex; gap: 8px; }
-        .dot { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; border: 0.5px solid rgba(0,0,0,0.1); }
+        .mac-controls { display: flex; gap: 10px; }
+        .dot { width: 16px; height: 16px; border-radius: 50%; cursor: pointer; border: 0.5px solid rgba(0,0,0,0.15); }
         .close { background: #ff5f57; }
         .min { background: #ffbd2e; }
         .max { background: #28c840; }
 
         .title-text {
             position: absolute; width: 100%; text-align: center; left: 0;
-            color: #616161; font-size: 13px; font-weight: 600; pointer-events: none;
+            color: #616161; font-size: 14px; font-weight: 600; pointer-events: none;
         }
 
         .content { flex-grow: 1; background: #fff; overflow: auto; -webkit-overflow-scrolling: touch; }
         iframe { width: 100%; height: 100%; border: none; }
 
-        /* App-Specific Looks */
-        .weather-app { background: linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%); color: white; padding: 20px; text-align: center; }
-        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: #444; height: 100%; }
-        .calc-btn { background: #e0e0e0; border: none; font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        /* App Specific UIs */
+        .calc-display { background: #333; color: white; text-align: right; padding: 20px; font-size: 32px; }
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: #444; flex-grow: 1; }
+        .calc-btn { background: #e0e0e0; border: none; font-size: 20px; cursor: pointer; }
         .calc-btn.orange { background: #ff9f0a; color: white; }
         .stock-item { display: flex; justify-content: space-between; padding: 15px; border-bottom: 1px solid #eee; }
 
-        /* The Dock */
         .dock-container {
             position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%);
-            background: var(--glass); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            background: var(--glass); backdrop-filter: blur(30px);
             padding: 10px 15px; border-radius: 24px; display: flex; gap: 12px;
             border: 0.5px solid rgba(255,255,255,0.3); z-index: 10000;
         }
@@ -92,64 +113,77 @@
         .dock-item {
             width: 50px; height: 50px; background: white; border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 28px; cursor: pointer; position: relative;
-            transition: transform 0.2s; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            font-size: 28px; cursor: pointer; transition: transform 0.2s;
         }
 
-        .dock-item:active { transform: scale(0.85); }
-        .active-dot {
-            position: absolute; bottom: -8px; width: 4px; height: 4px;
-            background: white; border-radius: 50%; display: none;
-        }
-
+        .active-dot { position: absolute; bottom: -8px; width: 4px; height: 4px; background: white; border-radius: 50%; display: none; }
         .maximized { width: 100vw !important; height: calc(100vh - 30px) !important; top: 30px !important; left: 0 !important; border-radius: 0; }
     </style>
 </head>
 <body>
 
     <div class="menu-bar">
-        <strong style="margin-right: 15px;"></strong>
-        <span id="active-app-name">Finder</span>
+        <strong></strong> <span id="active-app-name" style="margin-left: 15px;">Finder</span>
         <span style="flex-grow: 1;"></span>
         <span id="clock">--:--</span>
     </div>
 
-    <!-- Safari -->
-    <div id="win-safari" class="window" style="width: 80vw; height: 60vh; top: 60px; left: 10%;">
-        <div class="title-bar"><div class="mac-controls"><div class="dot close" onclick="closeApp('win-safari')"></div><div class="dot min" onclick="hideApp('win-safari')"></div><div class="dot max" onclick="toggleMax('win-safari')"></div></div><div class="title-text">Safari</div></div>
-        <div class="content"><iframe id="ifr-safari" src=""></iframe></div>
-    </div>
-
-    <!-- Weather -->
-    <div id="win-weather" class="window" style="width: 260px; height: 360px; top: 40px; left: 40px;">
-        <div class="title-bar"><div class="mac-controls"><div class="dot close" onclick="closeApp('win-weather')"></div><div class="dot min" onclick="hideApp('win-weather')"></div></div><div class="title-text">Weather</div></div>
-        <div class="content weather-app">
-            <h2 style="margin:0">Cupertino</h2>
-            <div style="font-size: 50px; margin: 20px 0;">72°</div>
-            <p>Sunny</p>
+    <!-- Desktop Icons -->
+    <div class="desktop-icons">
+        <div class="shortcut" onclick="openApp('win-safari', 'Safari', 'https://browser.rammerhead.org')">
+            <div class="shortcut-icon">🌐</div>
+            <div class="shortcut-label">Safari</div>
+        </div>
+        <div class="shortcut" onclick="openApp('win-weather', 'Weather')">
+            <div class="shortcut-icon">☀️</div>
+            <div class="shortcut-label">Weather</div>
+        </div>
+        <div class="shortcut" onclick="openApp('win-notes', 'Notes')">
+            <div class="shortcut-icon">📝</div>
+            <div class="shortcut-label">Notes</div>
+        </div>
+        <div class="shortcut" onclick="openApp('win-calc', 'Calculator')">
+            <div class="shortcut-icon">🔢</div>
+            <div class="shortcut-label">Calculator</div>
+        </div>
+        <div class="shortcut" onclick="openApp('win-stocks', 'Stocks')">
+            <div class="shortcut-icon">📈</div>
+            <div class="shortcut-label">Stocks</div>
         </div>
     </div>
 
-    <!-- Notes -->
-    <div id="win-notes" class="window" style="width: 400px; height: 300px; top: 150px; left: 300px;">
-        <div class="title-bar"><div class="mac-controls"><div class="dot close" onclick="closeApp('win-notes')"></div><div class="dot min" onclick="hideApp('win-notes')"></div><div class="dot max" onclick="toggleMax('win-notes')"></div></div><div class="title-text">Notes</div></div>
-        <div class="content"><textarea style="width:100%; height:100%; border:none; padding:15px; outline:none; font-size:16px; box-sizing:border-box;" placeholder="Type a note..."></textarea></div>
+    <!-- Windows (Same as before, ensure all exist) -->
+    <div id="win-safari" class="window" style="width: 80vw; height: 70vh; top: 60px; left: 10%;">
+        <div class="title-bar"><div class="mac-controls"><div class="dot close" onclick="closeApp('win-safari')"></div><div class="dot min" onclick="hideApp('win-safari')"></div><div class="dot max" onclick="toggleMax('win-safari')"></div></div><div class="title-text">Safari</div></div>
+        <div class="content"><iframe id="ifr-safari"></iframe></div>
     </div>
 
-    <!-- Calculator -->
-    <div id="win-calc" class="window" style="width: 230px; height: 320px; top: 300px; left: 100px;">
+    <div id="win-weather" class="window" style="width: 450px; height: 600px; top: 100px; left: 100px;">
+        <div class="title-bar"><div class="mac-controls"><div class="dot close" onclick="closeApp('win-weather')"></div><div class="dot min" onclick="hideApp('win-weather')"></div><div class="dot max" onclick="toggleMax('win-weather')"></div></div><div class="title-text">Weather</div></div>
+        <div class="content"><iframe src="https://www.weatherbug.com/weather-forecast/10-day-weather/ruston-la-71270"></iframe></div>
+    </div>
+
+    <div id="win-notes" class="window" style="width: 400px; height: 300px; top: 200px; left: 200px;">
+        <div class="title-bar"><div class="mac-controls"><div class="dot close" onclick="closeApp('win-notes')"></div><div class="dot min" onclick="hideApp('win-notes')"></div></div><div class="title-text">Notes</div></div>
+        <div class="content"><textarea style="width:100%; height:100%; border:none; padding:15px; outline:none; font-size:16px; box-sizing:border-box;" placeholder="Write something..."></textarea></div>
+    </div>
+
+    <div id="win-calc" class="window" style="width: 280px; height: 420px; top: 150px; left: 400px;">
         <div class="title-bar"><div class="mac-controls"><div class="dot close" onclick="closeApp('win-calc')"></div><div class="dot min" onclick="hideApp('win-calc')"></div></div><div class="title-text">Calculator</div></div>
-        <div class="content">
-            <div style="background:#333; color:white; text-align:right; padding:15px; font-size:24px;">0</div>
+        <div class="content" style="display:flex; flex-direction:column;">
+            <div id="calc-screen" class="calc-display">0</div>
             <div class="calc-grid">
-                <div class="calc-btn">C</div><div class="calc-btn">±</div><div class="calc-btn">%</div><div class="calc-btn orange">÷</div>
-                <div class="calc-btn">7</div><div class="calc-btn">8</div><div class="calc-btn">9</div><div class="calc-btn orange">×</div>
+                <button class="calc-btn" onclick="calcClear()">C</button><button class="calc-btn" onclick="calcOp('/')">÷</button><button class="calc-btn" onclick="calcOp('*')">×</button><button class="calc-btn orange" onclick="calcOp('-')">−</button>
+                <button class="calc-btn" onclick="calcNum('7')">7</button><button class="calc-btn" onclick="calcNum('8')">8</button><button class="calc-btn" onclick="calcNum('9')">9</button><button class="calc-btn orange" onclick="calcOp('+')">+</button>
+                <button class="calc-btn" onclick="calcRes()" style="grid-row: span 2; grid-column: 4; background:#ff9f0a; color:white;">=</button>
+                <button class="calc-btn" onclick="calcNum('4')">4</button><button class="calc-btn" onclick="calcNum('5')">5</button><button class="calc-btn" onclick="calcNum('6')">6</button>
+                <button class="calc-btn" onclick="calcNum('1')">1</button><button class="calc-btn" onclick="calcNum('2')">2</button><button class="calc-btn" onclick="calcNum('3')">3</button>
+                <button class="calc-btn" onclick="calcNum('0')" style="grid-column: span 2;">0</button><button class="calc-btn" onclick="calcNum('.')">.</button>
             </div>
         </div>
     </div>
 
-    <!-- Stocks -->
-    <div id="win-stocks" class="window" style="width: 300px; height: 400px; top: 100px; left: 600px;">
+    <div id="win-stocks" class="window" style="width: 300px; height: 350px; top: 50px; left: 600px;">
         <div class="title-bar"><div class="mac-controls"><div class="dot close" onclick="closeApp('win-stocks')"></div><div class="dot min" onclick="hideApp('win-stocks')"></div></div><div class="title-text">Stocks</div></div>
         <div class="content">
             <div class="stock-item"><span>AAPL</span><span style="color:#28c840;">$245.12</span></div>
@@ -160,77 +194,73 @@
 
     <!-- Dock -->
     <div class="dock-container">
-        <div class="dock-item" onclick="openApp('win-safari', 'Safari', 'https://www.google.com/search?igu=1')">🌐<div id="dot-win-safari" class="active-dot"></div></div>
+        <div class="dock-item" onclick="openApp('win-safari', 'Safari', 'https://browser.rammerhead.org')">🌐<div id="dot-win-safari" class="active-dot"></div></div>
         <div class="dock-item" onclick="openApp('win-weather', 'Weather')">☀️<div id="dot-win-weather" class="active-dot"></div></div>
         <div class="dock-item" onclick="openApp('win-notes', 'Notes')">📝<div id="dot-win-notes" class="active-dot"></div></div>
         <div class="dock-item" onclick="openApp('win-calc', 'Calculator')">🔢<div id="dot-win-calc" class="active-dot"></div></div>
         <div class="dock-item" onclick="openApp('win-stocks', 'Stocks')">📈<div id="dot-win-stocks" class="active-dot"></div></div>
-        <div class="dock-item">⚙️</div>
     </div>
 
     <script>
         let topZ = 100, isDragging = false, currentWin = null, startX, startY, initialLeft, initialTop;
 
+        // CALC
+        let currentInput = "0", formula = "", resetNext = false;
+        function calcNum(n) {
+            const s = document.getElementById('calc-screen');
+            if (currentInput === "0" || resetNext) { currentInput = n; resetNext = false; }
+            else { currentInput += n; }
+            s.innerText = currentInput;
+        }
+        function calcClear() { currentInput = "0"; formula = ""; document.getElementById('calc-screen').innerText = "0"; }
+        function calcOp(op) { formula = currentInput + op; resetNext = true; }
+        function calcRes() {
+            try { currentInput = String(eval(formula + currentInput)); document.getElementById('calc-screen').innerText = currentInput; formula = ""; resetNext = true; }
+            catch { document.getElementById('calc-screen').innerText = "Error"; calcClear(); }
+        }
+
+        // ENGINE
         function openApp(id, name, url = null) {
             const win = document.getElementById(id);
             win.style.display = 'flex';
             document.getElementById('dot-' + id).style.display = 'block';
-            if (url) {
-                const ifr = win.querySelector('iframe');
-                if (ifr && !ifr.src) ifr.src = url;
-            }
+            if (url) { const ifr = win.querySelector('iframe'); if (ifr && !ifr.src) ifr.src = url; }
             bringFront(win, name);
         }
-
-        function closeApp(id) {
-            document.getElementById(id).style.display = 'none';
-            document.getElementById('dot-' + id).style.display = 'none';
-        }
-
+        function closeApp(id) { document.getElementById(id).style.display = 'none'; document.getElementById('dot-' + id).style.display = 'none'; }
         function hideApp(id) { document.getElementById(id).style.display = 'none'; }
         function toggleMax(id) { document.getElementById(id).classList.toggle('maximized'); }
+        function bringFront(win, name) { win.style.zIndex = ++topZ; document.getElementById('active-app-name').innerText = name; }
 
-        function bringFront(win, name) {
-            win.style.zIndex = ++topZ;
-            document.getElementById('active-app-name').innerText = name;
-        }
-
-        function handleStart(e) {
-            const titleBar = e.target.closest('.title-bar');
-            if (!titleBar) return;
-            currentWin = titleBar.parentElement;
+        const startDrag = (e) => {
+            const tb = e.target.closest('.title-bar');
+            if (!tb) return;
+            currentWin = tb.parentElement;
             if (currentWin.classList.contains('maximized')) return;
             isDragging = true;
             bringFront(currentWin, currentWin.querySelector('.title-text').innerText);
-            const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-            const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-            startX = clientX; startY = clientY;
+            const ex = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const ey = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+            startX = ex; startY = ey;
             initialLeft = currentWin.offsetLeft; initialTop = currentWin.offsetTop;
-            currentWin.style.transition = 'none';
-        }
-
-        function handleMove(e) {
+        };
+        const moveDrag = (e) => {
             if (!isDragging || !currentWin) return;
-            const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-            const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-            currentWin.style.left = (initialLeft + (clientX - startX)) + 'px';
-            currentWin.style.top = (initialTop + (clientY - startY)) + 'px';
-        }
+            const ex = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const ey = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+            currentWin.style.left = (initialLeft + (ex - startX)) + 'px';
+            currentWin.style.top = (initialTop + (ey - startY)) + 'px';
+        };
+        document.addEventListener('mousedown', startDrag);
+        document.addEventListener('mousemove', moveDrag);
+        document.addEventListener('mouseup', () => isDragging = false);
+        document.addEventListener('touchstart', startDrag, { passive: false });
+        document.addEventListener('touchmove', moveDrag, { passive: false });
+        document.addEventListener('touchend', () => isDragging = false);
 
-        function handleEnd() { if (currentWin) currentWin.style.transition = ''; isDragging = false; currentWin = null; }
-
-        document.addEventListener('mousedown', handleStart);
-        document.addEventListener('mousemove', handleMove);
-        document.addEventListener('mouseup', handleEnd);
-        document.addEventListener('touchstart', handleStart, { passive: false });
-        document.addEventListener('touchmove', handleMove, { passive: false });
-        document.addEventListener('touchend', handleEnd);
-
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        }
-        setInterval(updateClock, 1000); updateClock();
+        setInterval(() => {
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }, 1000);
     </script>
 </body>
 </html>
