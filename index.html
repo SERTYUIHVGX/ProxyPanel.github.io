@@ -3,230 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AeroOS Mobile</title>
+    <title>AeroOS Turbo</title>
     <style>
         :root {
-            --glass: rgba(255, 255, 255, 0.2);
-            --aero-border: rgba(255, 255, 255, 0.6);
-            --title-text: #004a99;
+            --glass: rgba(255, 255, 255, 0.3);
+            --aero-border: rgba(255, 255, 255, 0.8);
         }
 
         body {
             margin: 0;
             height: 100vh;
-            /* Authentic Frutiger Aero Wallpaper */
             background: url('https://web.archive.org/web/20240315000000im_/https://wallpapercave.com/wp/wp2555312.jpg') no-repeat center center fixed;
             background-size: cover;
             overflow: hidden;
-            font-family: 'Segoe UI', Tahoma, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             touch-action: none;
         }
 
-        /* Window Styling */
+        /* Speed-optimized glassmorphism */
         .window {
             position: absolute;
             background: var(--glass);
-            backdrop-filter: blur(20px) saturate(160%);
-            -webkit-backdrop-filter: blur(20px) saturate(160%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1.5px solid var(--aero-border);
-            border-radius: 12px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3), inset 0 0 10px rgba(255,255,255,0.4);
-            display: flex;
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            display: none;
             flex-direction: column;
             z-index: 10;
             overflow: hidden;
-        }
-
-        /* Glossy Reflection Overlay */
-        .window::after {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 50%;
-            background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 60%);
-            pointer-events: none;
+            will-change: transform; /* Hardware acceleration for iPad */
         }
 
         .title-bar {
-            padding: 10px 15px;
-            background: linear-gradient(to bottom, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.1) 100%);
+            padding: 12px 18px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.1) 100%);
             cursor: move;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.3);
-            z-index: 5;
+            border-bottom: 1px solid rgba(255,255,255,0.4);
         }
 
-        .title-text { font-weight: bold; color: var(--title-text); text-shadow: 0 1px 1px white; }
+        .title-text { font-weight: 800; color: #002244; text-shadow: 0 1px 2px white; }
 
         .controls { display: flex; gap: 8px; }
-        .btn { width: 24px; height: 18px; border-radius: 3px; cursor: pointer; border: 1px solid rgba(0,0,0,0.2); }
-        .min { background: #ffbd2e; } .max { background: #27c93f; } .close { background: #ff5f56; }
+        .btn { width: 28px; height: 20px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.2); cursor: pointer; }
+        .max { background: #27c93f; } .close { background: #ff5f56; }
 
-        .content { flex-grow: 1; background: white; position: relative; z-index: 1; overflow-y: auto; }
-        iframe { width: 100%; height: 100%; border: none; }
+        .content { flex-grow: 1; background: #fff; position: relative; }
+        iframe { width: 100%; height: 100%; border: none; background: #000; }
 
-        /* Game Grid Styling */
+        /* Rapid Game Grid */
         .game-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-            gap: 15px;
-            padding: 20px;
-            background: rgba(255,255,255,0.5);
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 20px;
+            padding: 25px;
+            background: rgba(255,255,255,0.4);
+            height: 100%;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .game-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-            text-align: center;
-            transition: transform 0.1s;
+            display: flex; flex-direction: column; align-items: center;
+            cursor: pointer; transition: transform 0.1s;
         }
         .game-item:active { transform: scale(0.9); }
         .game-icon {
-            width: 60px; height: 60px;
-            background: linear-gradient(135deg, #fff, #d9f2ff);
-            border-radius: 12px;
+            width: 65px; height: 65px;
+            background: linear-gradient(135deg, #fff, #b3e6ff);
+            border-radius: 15px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 32px;
-            margin-bottom: 5px;
+            font-size: 32px; margin-bottom: 8px;
             border: 2px solid white;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
         }
-        .game-item span { font-size: 11px; font-weight: 600; color: #003366; }
+        .game-item span { font-size: 11px; font-weight: 800; color: #002244; text-align: center; }
 
-        /* Dock / Taskbar */
+        /* Dock */
         .dock {
             position: fixed; bottom: 20px; left: 50%;
             transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.4);
             backdrop-filter: blur(15px);
+            padding: 12px 25px; border-radius: 30px;
+            display: flex; gap: 20px; z-index: 1000;
             border: 1px solid var(--aero-border);
-            padding: 10px 25px;
-            border-radius: 20px;
-            display: flex; gap: 20px;
-            z-index: 1000;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
         .dock-app {
-            width: 50px; height: 50px;
-            background: white;
-            border-radius: 12px;
+            width: 55px; height: 55px; background: white; border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 24px; cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            border: 1px solid #eee;
+            font-size: 28px; cursor: pointer; border: 1.5px solid #fff;
         }
 
-        /* Maximized Utility */
-        .is-maximized {
-            width: 100vw !important; height: calc(100vh - 85px) !important;
-            top: 0 !important; left: 0 !important; border-radius: 0;
-        }
+        .is-maximized { width: 100vw !important; height: calc(100vh - 90px) !important; top: 0 !important; left: 0 !important; border-radius: 0; }
     </style>
 </head>
 <body>
 
     <!-- Browser -->
-    <div id="win-browser" class="window" style="width: 500px; height: 400px; top: 40px; left: 40px; display: flex;">
+    <div id="win-browser" class="window" style="width: 500px; height: 400px; top: 20px; left: 20px; display: flex;">
         <div class="title-bar" onmousedown="dragStart(event, 'win-browser')" ontouchstart="dragStart(event, 'win-browser')">
-            <span class="title-text">🌐 Rammerhead</span>
-            <div class="controls">
-                <div class="btn max" onclick="toggleMax('win-browser')"></div>
-                <div class="btn close" onclick="toggleWin('win-browser')"></div>
-            </div>
+            <span class="title-text">🌐 Browser</span>
+            <div class="controls"><div class="btn max" onclick="toggleMax('win-browser')"></div><div class="btn close" onclick="toggleWin('win-browser')"></div></div>
         </div>
-        <div class="content"><iframe src="https://browser.rammerhead.org"></iframe></div>
+        <div class="content"><iframe id="browser-iframe" data-src="https://browser.rammerhead.org"></iframe></div>
     </div>
 
-    <!-- Games Folder -->
-    <div id="win-games" class="window" style="width: 420px; height: 350px; top: 100px; left: 600px; display: flex;">
+    <!-- Games Hub -->
+    <div id="win-games" class="window" style="width: 480px; height: 400px; top: 100px; left: 50%; transform: translateX(-50%); display: flex;">
         <div class="title-bar" onmousedown="dragStart(event, 'win-games')" ontouchstart="dragStart(event, 'win-games')">
-            <span class="title-text">🎮 Games Center</span>
-            <div class="controls">
-                <div class="btn max" onclick="toggleMax('win-games')"></div>
-                <div class="btn close" onclick="toggleWin('win-games')"></div>
-            </div>
+            <span class="title-text">🎮 Game Center</span>
+            <div class="controls"><div class="btn close" onclick="toggleWin('win-games')"></div></div>
         </div>
         <div class="content">
-            <div class="game-grid">
-                <div class="game-item" onclick="launchGame('🛷 Snow Rider', 'https://itsvijaysingh.github.io/Snow-Rider3D/')">
-                    <div class="game-icon">🛷</div><span>Snow Rider</span>
-                </div>
-                <div class="game-item" onclick="launchGame('🏃 Subway Surfers', 'https://subwaysurfers.com.co/')">
-                    <div class="game-icon">🏃</div><span>Subway Surf</span>
-                </div>
-                <div class="game-item" onclick="launchGame('⚽ Soccer Random', 'https://realsoccer-random.github.io/')">
-                    <div class="game-icon">⚽</div><span>Soccer Random</span>
-                </div>
-                <div class="game-item" onclick="launchGame('🧱 Minecraft', 'https://eaglercraft.com/mc/1.8.8/')">
-                    <div class="game-icon">🧱</div><span>Minecraft</span>
-                </div>
-                <div class="game-item" onclick="launchGame('🏍️ Moto X3M', 'https://moto-x3m.io/')">
-                    <div class="game-icon">🏍️</div><span>Moto X3M</span>
-                </div>
-                <div class="game-item" onclick="launchGame('🏈 Retro Bowl', 'https://game316009.konggames.com/gamefile/316009/11/RetroBowl.html')">
-                    <div class="game-icon">🏈</div><span>Retro Bowl</span>
-                </div>
-                <div class="game-item" onclick="launchGame('🔫 1v1.LOL', 'https://1v1.lol/')">
-                    <div class="game-icon">🔫</div><span>1v1.LOL</span>
-                </div>
-                <div class="game-item" onclick="launchGame('🟢 Slope', 'https://krunkerio.net/slope/')">
-                    <div class="game-icon">🟢</div><span>Slope</span>
-                </div>
-                <div class="game-item" onclick="launchGame('🔢 2048', 'https://play2048.co/')">
-                    <div class="game-icon">🔢</div><span>2048</span>
-                </div>
+            <div class="game-grid" id="main-grid">
+                <!-- Games are rendered here for faster execution -->
             </div>
         </div>
     </div>
 
-    <!-- Game Player -->
-    <div id="win-player" class="window" style="width: 85%; height: 80%; top: 5%; left: 7.5%; display: none;">
-        <div class="title-bar" onmousedown="dragStart(event, 'win-player')" ontouchstart="dragStart(event, 'win-player')">
-            <span id="player-title" class="title-text">Playing...</span>
-            <div class="controls">
-                <div class="btn max" onclick="toggleMax('win-player')"></div>
-                <div class="btn close" onclick="closePlayer()"></div>
-            </div>
+    <!-- Runner -->
+    <div id="win-runner" class="window" style="width: 90%; height: 85%; top: 2.5%; left: 5%;">
+        <div class="title-bar" onmousedown="dragStart(event, 'win-runner')" ontouchstart="dragStart(event, 'win-runner')">
+            <span id="runner-title" class="title-text">Game</span>
+            <div class="controls"><div class="btn max" onclick="toggleMax('win-runner')"></div><div class="btn close" onclick="closeRunner()"></div></div>
         </div>
-        <div class="content"><iframe id="player-frame" src=""></iframe></div>
+        <div class="content"><iframe id="runner-frame" src=""></iframe></div>
     </div>
 
-    <!-- Dock -->
     <div class="dock">
         <div class="dock-app" onclick="toggleWin('win-browser')">🌐</div>
         <div class="dock-app" onclick="toggleWin('win-games')">🎮</div>
     </div>
 
     <script>
-        let activeWin = null;
-        let offset = { x: 0, y: 0 };
-        let topZ = 100;
+        const games = [
+            {n: "Snow Rider", u: "https://itsvijaysingh.github.io/Snow-Rider3D/", i: "🛷"},
+            {n: "Minecraft", u: "https://eaglercraft.com/mc/1.8.8/", i: "🧱"},
+            {n: "Slope", u: "https://math-games.github.io/slope/", i: "🟢"},
+            {n: "Moto X3M", u: "https://images-opensocial.googleusercontent.com/gadgets/proxy?container=fb&url=https://haxball.com.br/moto-x3m/", i: "🏍️"},
+            {n: "BitLife", u: "https://bitlifeonline.com/", i: "🧬"},
+            {n: "Cookie Clicker", u: "https://orteil.dashnet.org/cookieclicker/", i: "🍪"},
+            {n: "Temple Run 2", u: "https://images-opensocial.googleusercontent.com/gadgets/proxy?container=fb&url=https://haxball.com.br/temple-run-2/", i: "🗿"},
+            {n: "Angry Birds", u: "https://bcmc.io/angrybirds/", i: "🐦"},
+            {n: "Sonic", u: "https://www.retrogames.cc/embed/40238-sonic-the-hedgehog.html", i: "🦔"},
+            {n: "Geometry Dash", u: "https://geometrydash.io/", i: "🔼"},
+            {n: "Tunnel Rush", u: "https://tunnelrush2.org/", i: "🏎️"},
+            {n: "Subway Surf", u: "https://subwaysurfers.com.co/", i: "🛹"},
+            {n: "Paper.io 2", u: "https://paper-io.com/", i: "📄"},
+            {n: "Basket Random", u: "https://basketrandom.io/", i: "🏀"},
+            {n: "Cut The Rope", u: "https://cuttherope.net/", i: "🍭"},
+            {n: "2048", u: "https://play2048.co/", i: "🔢"}
+        ];
+
+        // Load grid immediately
+        const grid = document.getElementById('main-grid');
+        games.forEach(g => {
+            const div = document.createElement('div');
+            div.className = 'game-item';
+            div.innerHTML = `<div class="game-icon">${g.i}</div><span>${g.n}</span>`;
+            div.onclick = () => {
+                document.getElementById('runner-title').innerText = g.n;
+                document.getElementById('runner-frame').src = g.u;
+                document.getElementById('win-runner').style.display = 'flex';
+                bringFront(document.getElementById('win-runner'));
+            };
+            grid.appendChild(div);
+        });
+
+        let activeWin = null, offset = {x:0, y:0}, topZ = 100;
 
         function toggleWin(id) {
             const win = document.getElementById(id);
-            win.style.display = (win.style.display === 'none') ? 'flex' : 'none';
-            if(win.style.display === 'flex') bringFront(win);
+            if (win.style.display === 'none' || !win.style.display) {
+                win.style.display = 'flex';
+                // Lazy load browser
+                const ifr = win.querySelector('iframe');
+                if (ifr && ifr.dataset.src && !ifr.src) ifr.src = ifr.dataset.src;
+                bringFront(win);
+            } else {
+                win.style.display = 'none';
+            }
+        }
+
+        function closeRunner() {
+            document.getElementById('win-runner').style.display = 'none';
+            document.getElementById('runner-frame').src = ""; // Kill process for speed
         }
 
         function toggleMax(id) { document.getElementById(id).classList.toggle('is-maximized'); }
-
         function bringFront(win) { win.style.zIndex = ++topZ; }
-
-        function launchGame(name, url) {
-            document.getElementById('player-title').innerText = name;
-            document.getElementById('player-frame').src = url;
-            document.getElementById('win-player').style.display = 'flex';
-            bringFront(document.getElementById('win-player'));
-        }
-
-        function closePlayer() {
-            document.getElementById('win-player').style.display = 'none';
-            document.getElementById('player-frame').src = "";
-        }
 
         function dragStart(e, id) {
             activeWin = document.getElementById(id);
@@ -236,20 +207,17 @@
             const cy = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
             const r = activeWin.getBoundingClientRect();
             offset.x = cx - r.left; offset.y = cy - r.top;
-            document.addEventListener(e.type.includes('touch') ? 'touchmove' : 'mousemove', drag, {passive: false});
-            document.addEventListener(e.type.includes('touch') ? 'touchend' : 'mouseup', stop);
+            document.addEventListener(e.type.includes('touch')?'touchmove':'mousemove', drag, {passive: false});
+            document.addEventListener(e.type.includes('touch')?'touchend':'mouseup', () => activeWin = null);
         }
 
         function drag(e) {
-            if (!activeWin) return;
-            e.preventDefault();
+            if (!activeWin) return; e.preventDefault();
             const cx = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
             const cy = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
             activeWin.style.left = (cx - offset.x) + 'px';
             activeWin.style.top = (cy - offset.y) + 'px';
         }
-
-        function stop() { activeWin = null; }
     </script>
 </body>
 </html>
