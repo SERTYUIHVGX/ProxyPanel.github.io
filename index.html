@@ -2,367 +2,170 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>yxon6ProxyPanel | CLI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AeroOS Mobile</title>
     <style>
         :root {
-            --bg-color: #000000;
-            --text-color: #ffffff;
-            --font-main: 'Courier New', Courier, monospace;
+            --gloss: rgba(255, 255, 255, 0.3);
+            --glass: rgba(255, 255, 255, 0.15);
+            --border: rgba(255, 255, 255, 0.4);
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: var(--font-main);
-            margin: 0;
-            padding: 20px;
+            background: linear-gradient(135deg, #0078d7, #83be00, #00d4ff);
+            background-image: url('https://images.unsplash.com/photo-1500673922987-e212871fec22?auto=format&fit=crop&q=80&w=2070'); /* Vibrant nature shot */
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            box-sizing: border-box;
-            overflow: hidden;
-            text-rendering: optimizeLegibility;
+            align-items: center;
         }
 
-        #matrixCanvas {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: -1;
+        /* The App Container (Iframe) */
+        .window {
             display: none;
-        }
-
-        body::after {
-            content: "";
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            background-size: 100% 3px, 3px 100%;
-            pointer-events: none;
+            top: 5%;
+            left: 5%;
+            width: 90%;
+            height: 80%;
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3), inset 0 0 20px var(--gloss);
+            flex-direction: column;
+            overflow: hidden;
             z-index: 10;
         }
 
-        #output {
-            flex-grow: 1;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            position: relative;
-            z-index: 2;
-            padding-bottom: 20px;
-            scrollbar-width: thin;
-            scrollbar-color: var(--text-color) transparent;
-        }
-
-        #output::-webkit-scrollbar { width: 5px; }
-        #output::-webkit-scrollbar-thumb { background: var(--text-color); }
-
-        .header-ascii {
-            font-size: 12px;
-            line-height: 1.2;
-            margin: 0 0 20px 0;
-            white-space: pre;
-            color: var(--text-color);
-        }
-
-        .command-line {
-            display: flex;
-            align-items: center;
-            padding-top: 10px;
-            background: var(--bg-color);
-            position: relative;
-            z-index: 2;
-            flex-shrink: 0;
-        }
-
-        .prompt {
-            color: var(--text-color);
-            margin-right: 10px;
-            font-weight: bold;
-        }
-
-        #input {
-            background: transparent;
-            border: none;
-            color: var(--text-color);
-            font-family: var(--font-main);
-            font-size: 1rem;
-            flex-grow: 1;
-            outline: none;
-        }
-
-        #settingsModal {
-            display: none;
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #000;
-            border: 2px solid var(--text-color);
-            padding: 15px;
-            z-index: 100;
-            box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
-            width: max-content;
-        }
-
-        .modal-header {
-            border-bottom: 1px solid var(--text-color);
-            padding-bottom: 5px;
-            margin-bottom: 10px;
+        .window-header {
+            padding: 10px 20px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.4), rgba(255,255,255,0.1));
             display: flex;
             justify-content: space-between;
-            font-size: 0.8rem;
-            user-select: none;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
         }
 
-        .close-btn { cursor: pointer; color: #ff0000; font-weight: bold; }
-        .ascii-settings { font-size: 10px; line-height: 1.1; white-space: pre; color: var(--text-color); }
-        .t-btn { cursor: pointer; font-weight: bold; padding: 0 2px; }
-        .t-btn:hover { background-color: var(--text-color); color: #000; }
-        .system-msg { opacity: 0.6; }
-        .success-msg { font-weight: bold; }
-        .error-msg { color: #ff0000; }
-        .link-item { display: block; margin: 5px 0; color: inherit; text-decoration: none; opacity: 0.8; }
-        .link-item:hover { opacity: 1; text-decoration: underline; }
-        .proxy-entry { font-size: 0.9rem; margin: 2px 0; cursor: pointer; }
-        .proxy-entry:hover { text-decoration: underline; }
+        .close-btn {
+            background: rgba(255, 50, 50, 0.7);
+            border: none;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        iframe {
+            flex-grow: 1;
+            border: none;
+            width: 100%;
+            height: 100%;
+            background: white;
+        }
+
+        /* Floating Dock */
+        .dock {
+            position: fixed;
+            bottom: 20px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: flex;
+            gap: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 100;
+        }
+
+        .icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2), inset 0 -3px 5px rgba(0,0,0,0.1);
+            font-size: 24px;
+            border: 2px solid white;
+        }
+
+        .icon:active { transform: scale(0.9); }
+
+        .icon img { width: 40px; height: 40px; }
+
+        /* Floating Bubbles Decoration */
+        .bubble {
+            position: absolute;
+            background: var(--gloss);
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 10s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            50% { transform: translateY(-50px) translateX(20px); }
+        }
     </style>
 </head>
 <body>
 
-<canvas id="matrixCanvas"></canvas>
+    <!-- Decorative Bubbles -->
+    <div class="bubble" style="width: 100px; height: 100px; top: 10%; left: 15%;"></div>
+    <div class="bubble" style="width: 60px; height: 60px; top: 60%; left: 80%;"></div>
 
-<div id="settingsModal">
-    <div class="modal-header">
-        <span>Yxon_OS://SYSTEM_CONFIG_V2</span>
-        <span class="close-btn" onclick="closeSettings()">[CLOSE_X]</span>
+    <!-- Rammerhead Window -->
+    <div id="rammerhead" class="window">
+        <div class="window-header">
+            <span>Browser</span>
+            <button class="close-btn" onclick="closeApp('rammerhead')">X</button>
+        </div>
+        <iframe src="https://browser.rammerhead.org"></iframe>
     </div>
-    <div class="ascii-settings">__________________________________________________________________________________________
-|                                                                |                        |
-|                            .,,.'.                              |  Theme:                |
-|                       _p)^'.`''{dl                             |  <span class="t-btn" onclick="setTheme('DEFAULT')">[DEFAULT]</span>           |
-|                    0w^     '''':.0ooj                          |  <span class="t-btn" onclick="setTheme('RED')">[RED]</span>                 |
-|                  .#;         ''''.X0r  ;k                      |  <span class="t-btn" onclick="setTheme('BLUE')">[BLUE]</span>                |
-|                 _)           .`'q-M.    #                      |  <span class="t-btn" onclick="setTheme('GREEN')">[GREEN]</span>               |
-|                 b `{h!'^      .^`[>   }/a.                     |  <span class="t-btn" onclick="setTheme('PURPLE')">[PURPLE]</span>              |
-|                :j  0   ^vZ`.   .'`.h .J,k++.                   |  <span class="t-btn" onclick="setTheme('ORANGE')">[ORANGE]</span>              |
-|                [i  n           ..... JlWIv                     |  <span class="t-btn" onclick="setTheme('PINK')">[PINK]</span>                |
-|                d  C               .''. t}m;v                   |                        |
-|                f:`L  .,+<       ^\|}.`'h >j                    |  STATUS:               |
-|                <zn h:    q`1x  &     )d'@Q                     |  Terminal - [√]        |
-|                 B^k      `>~  `+     Q,O#Z                     |  Commands - [√]        |
-|                _q~W      j>   'O  ~&'.c;#o                     |  Yxon OS  - [√]        |
-|                 B,   ik/' Q-q_ ^mva :*.mt<                     |  Proxies  - [√]        |
-|                 "&#MWWI. x^  p.  X*pfvY                        |                        |
-|                        YZZOf" m'O[J';X .888.                   |  BACKGROUND_EFFECT:    |
-|                        f^&`>i  .  . i{ XUw                     |  <span class="t-btn" onclick="setTheme('DEFAULT')">[DEFAULT]</span>             |
-|                        @b.Y.,"^: !  I jI k* |  <span class="t-btn" onclick="setTheme('MATRIX')">[MATRIX]</span>               |
-|                        -"/i#8pt@M#0%mBcY1M .                   |                        |
-|                        Lq`f&L\^O;p,iJ0?l }~                    |                        |
-|                        p "W1^rQ8aQxY z}Z :Y                    |                        |
-|                        <1I#X[       "Yw~ Q                     |                        |
-|                        .O f{u       X Q`.O                     |                        |
-|                        ')] BWQQ    0Y)@.d                      |                        |
-|                         lt LBmLcc:^WYi#.                       |                        |
-|                           *!'Q@B%h _Z                          |                        |
-|                             c%%%%B&`                           |                        |
-|________________________________________________________________|________________________|</div>
-</div>
 
-<div id="output">
-<pre class="header-ascii" id="mainHeader">
-8888888b.                                         8888888b.                                    888 
-888   Y88b                                        888   Y88b                                   888 
-888    888                                        888    888                                   888 
-888   d88P 888d888 .d88b.  888   888  888   888   888   d88P  8888b.    88888b.   .d8888b.    888 
-8888888P"  888P"  d88""88b `Y8bd8P'  888   888   8888888P"     "88b    888 "88b d8P   YZ8b   888 
-888        888    888   888   X88K   888   888    888        .d888888  888.  888 88888888Y'   888 
-888        888    Y88..88P .d8""8b.  Y88b 888    888        888   888 888   888  "YZ8b. vzv   888 
-888        888     "Y88P"  888   888  "Y88888    888        "Y888888  888   888   "Y8888Y'   888 
-                                           888                                                 
-                                     Y8b d88P                                                 
-                                      "Y88P"                                                  
-</pre>
-    <div id="log">
-        <div class="system-msg">yxon6ProxyPanel v2.9.0</div>
-        <div class="system-msg">type "help" for info</div>
-        <br>
+    <!-- Snow Rider Window -->
+    <div id="snowrider" class="window">
+        <div class="window-header">
+            <span>Snow Rider 3D</span>
+            <button class="close-btn" onclick="closeApp('snowrider')">X</button>
+        </div>
+        <iframe src="https://itsvijaysingh.github.io/Snow-Rider3D/"></iframe>
     </div>
-</div>
 
-<div class="command-line">
-    <span class="prompt">yxon6@proxy:~$</span>
-    <input type="text" id="input" autofocus spellcheck="false" autocomplete="off">
-</div>
+    <!-- The Dock -->
+    <div class="dock">
+        <div class="icon" onclick="openApp('rammerhead')" title="Browser">🌐</div>
+        <div class="icon" onclick="openApp('snowrider')" title="Snow Rider 3D">🛷</div>
+    </div>
 
-<script>
-    // --- AUTHENTICATION SYSTEM ---
-    const REQUIRED_PASS = "saV-K-qA-M0sc-ze-K-W3d-t-0p-RRyp-70-H"; 
-
-    function validateAccess() {
-        const userPass = prompt("RESTRICTED ACCESS: Enter System Password");
-        
-        if (userPass === REQUIRED_PASS) {
-            alert("ACCESS GRANTED.");
-        } else {
-            alert("WRONG PASSWORD. Access Denied.");
-            // Refresh to lock access again
-            window.location.reload();
+    <script>
+        function openApp(id) {
+            // Close other windows first to keep it clean on iPad
+            document.querySelectorAll('.window').forEach(win => win.style.display = 'none');
+            document.getElementById(id).style.display = 'flex';
         }
-    }
 
-    // Initialize password check immediately
-    validateAccess();
-
-    const themes = {
-        'DEFAULT': '#ffffff', 'RED': '#ff0000', 'BLUE': '#00ccff',
-        'GREEN': '#39ff14', 'PURPLE': '#bc13fe', 'ORANGE': '#ffae42', 'PINK': '#ff69b4'
-    };
-
-    const proxyData = {
-        "AWP": ["https://lessons.axsetubal.pt/", "https://useawp.developer.li//", "https://api.incatel.cl/", "https://useawp.7s.com.tr/"],
-        "TRUFFLED": ["https://edu.sciencecomputers.lat/", "https://truffled.lol/", "https://ee.rxtech.cl/", "https://infoo.infotechnology.com/"],
-        "VOID": ["https://awesome.martinwguy.net/?/", "https://strange.martinwguy.net/?/"],
-        "QUASAR": ["https://epic.tomaszu.com/", "https://eglobaleducation.com/"],
-        "VAPOUR": ["https://watervapor.space/", "https://education-live.com/"],
-        "BOREDOM": ["https://pn.boredom.apertura.com/", "https://doxwind.xyz/", "https://wispserver.dev/"],
-        "KOOPBIN": ["https://koopbin.site/", "https://learnster.online/"],
-        "NEBULA": ["https://math.school.dovereducation.org/", "http://clever.com.elmhoneyheath.recepist.com/"],
-        "AFILITE": ["https://readinghelpforelementary.online/"],
-        "SPLASH": ["https://cullinary-schools.ks11.ru/", "https://darkn.ks11.ru/", "https://splashstudy.b-cdn.net/"],
-        "GAMES": ["https://www.calculators.org/games/uno/", "https://block-blasts.github.io/", "https://poorbunny.io/"]
-    };
-
-    const input = document.getElementById('input');
-    const log = document.getElementById('log');
-    const outputArea = document.getElementById('output');
-    const modal = document.getElementById('settingsModal');
-    const canvas = document.getElementById('matrixCanvas');
-    const ctx = canvas.getContext('2d');
-
-    let matrixInterval = null;
-    let drops = [];
-    const fontSize = 16;
-    let fps = 0, frameCount = 0, lastTime = performance.now();
-
-    function updateFPS() {
-        frameCount++;
-        let now = performance.now();
-        if (now - lastTime >= 1000) { fps = frameCount; frameCount = 0; lastTime = now; }
-        requestAnimationFrame(updateFPS);
-    }
-    updateFPS();
-
-    function initMatrix() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        const columns = canvas.width / fontSize;
-        drops = Array(Math.floor(columns)).fill(1);
-    }
-
-    function drawMatrix() {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-color');
-        ctx.font = fontSize + "px Courier New";
-        drops.forEach((y, i) => {
-            const text = Math.floor(Math.random() * 2);
-            ctx.fillText(text, i * fontSize, y * fontSize);
-            if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-            drops[i]++;
-        });
-    }
-
-    function toggleMatrix(enable) {
-        if (enable) {
-            canvas.style.display = 'block';
-            initMatrix();
-            if (!matrixInterval) matrixInterval = setInterval(drawMatrix, 35);
-        } else {
-            canvas.style.display = 'none';
-            clearInterval(matrixInterval);
-            matrixInterval = null;
+        function closeApp(id) {
+            document.getElementById(id).style.display = 'none';
         }
-    }
 
-    function setTheme(name) {
-        if(name === 'MATRIX') { toggleMatrix(true); return; }
-        toggleMatrix(false);
-        const color = themes[name];
-        document.documentElement.style.setProperty('--text-color', color);
-        modal.style.boxShadow = `0 0 30px ${color}44`;
-    }
-
-    input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            const val = input.value.trim();
-            const cmd = val.toUpperCase();
-            
-            printLine(`<span class="prompt">yxon6@proxy:~$</span> ${val}`);
-            
-            if (cmd === 'SETTINGS') modal.style.display = 'block';
-            else if (cmd === 'SPEEDTEST') runSpeedTest();
-            else if (cmd === 'PROXYLIST') showProxyCategories();
-            else if (cmd === 'GAMES') showCategoryLinks('GAMES');
-            else if (proxyData[cmd]) showCategoryLinks(cmd);
-            else if (cmd === 'HELP') {
-                printLine('Available: HELP, SETTINGS, SPEEDTEST, PROXYLIST, GAMES, CLEAR');
-                printLine('Usage: Type network name or "GAMES" to see links.');
+        // Prevent iPad bounce scrolling
+        document.addEventListener('touchmove', function(e) {
+            if (e.target.tagName !== 'IFRAME') {
+                e.preventDefault();
             }
-            else if (cmd === 'CLEAR') log.innerHTML = '<br>';
-            else if (val !== "") printLine(`<span class="error-msg">Unknown command: ${val}</span>`);
-            
-            input.value = '';
-            scrollToBottom();
-        }
-    });
-
-    function printLine(html) {
-        const div = document.createElement('div');
-        div.innerHTML = html;
-        log.appendChild(div);
-        scrollToBottom();
-    }
-
-    function scrollToBottom() {
-        outputArea.scrollTop = outputArea.scrollHeight;
-    }
-
-    function showProxyCategories() {
-        printLine(`<span class="success-msg">--- PROXY NETWORKS ---</span>`);
-        Object.keys(proxyData).forEach(key => {
-            if(key !== "GAMES") printLine(`<div class="proxy-entry" onclick="executeCommand('${key}')">> ${key}</div>`);
-        });
-        printLine(`<br><span class="system-msg">Click a network above or type its name.</span>`);
-    }
-
-    function showCategoryLinks(category) {
-        printLine(`<span class="success-msg">--- ${category} LINKS ---</span>`);
-        proxyData[category].forEach(url => {
-            printLine(`<a href="${url}" target="_blank" class="link-item">${url}</a>`);
-        });
-    }
-
-    function executeCommand(cmd) {
-        input.value = cmd;
-        const e = new KeyboardEvent('keydown', {key: 'Enter'});
-        input.dispatchEvent(e);
-        input.focus();
-    }
-
-    async function runSpeedTest() {
-        printLine(`<span class="system-msg">Pinging nodes...</span>`);
-        await new Promise(r => setTimeout(r, 800));
-        const p = Math.floor(Math.random() * 25 + 5);
-        const s = (Math.random() * 300 + 100).toFixed(1);
-        printLine(` -> PING: ${p}ms | SPEED: ${s}Mbps | FPS: ${fps}`);
-    }
-
-    function closeSettings() { modal.style.display = 'none'; input.focus(); }
-    
-    document.addEventListener('click', () => input.focus());
-    window.addEventListener('resize', () => { if (matrixInterval) initMatrix(); });
-</script>
+        }, { passive: false });
+    </script>
 </body>
 </html>
