@@ -33,7 +33,7 @@
             flex-direction: column;
             z-index: 10;
             overflow: hidden;
-            will-change: transform; /* Hardware acceleration for iPad */
+            will-change: transform;
         }
 
         .title-bar {
@@ -100,6 +100,8 @@
             font-size: 28px; cursor: pointer; border: 1.5px solid #fff;
         }
 
+        #game-container { width: 100%; height: 100%; }
+
         .is-maximized { width: 100vw !important; height: calc(100vh - 90px) !important; top: 0 !important; left: 0 !important; border-radius: 0; }
     </style>
 </head>
@@ -122,7 +124,16 @@
         </div>
         <div class="content">
             <div class="game-grid" id="main-grid">
-                <!-- Games are rendered here for faster execution -->
+                <!-- Only Snow Rider and Freezenova Container -->
+                <div class="game-item" onclick="openGame('Snow Rider', 'https://itsvijaysingh.github.io/Snow-Rider3D/')">
+                    <div class="game-icon">🛷</div>
+                    <span>Snow Rider</span>
+                </div>
+                
+                <div class="game-item" onclick="openGame('Freezenova', 'https://games.freezenova.com/your-game-link/index.html')">
+                    <div class="game-icon">❄️</div>
+                    <span>Freezenova</span>
+                </div>
             </div>
         </div>
     </div>
@@ -133,7 +144,11 @@
             <span id="runner-title" class="title-text">Game</span>
             <div class="controls"><div class="btn max" onclick="toggleMax('win-runner')"></div><div class="btn close" onclick="closeRunner()"></div></div>
         </div>
-        <div class="content"><iframe id="runner-frame" src=""></iframe></div>
+        <div class="content">
+            <div id="game-container">
+                <iframe id="runner-frame" src=""></iframe>
+            </div>
+        </div>
     </div>
 
     <div class="dock">
@@ -142,47 +157,19 @@
     </div>
 
     <script>
-        const games = [
-            {n: "Snow Rider", u: "https://itsvijaysingh.github.io/Snow-Rider3D/", i: "🛷"},
-            {n: "Minecraft", u: "https://eaglercraft.com/mc/1.8.8/", i: "🧱"},
-            {n: "Slope", u: "https://math-games.github.io/slope/", i: "🟢"},
-            {n: "Moto X3M", u: "https://images-opensocial.googleusercontent.com/gadgets/proxy?container=fb&url=https://haxball.com.br/moto-x3m/", i: "🏍️"},
-            {n: "BitLife", u: "https://bitlifeonline.com/", i: "🧬"},
-            {n: "Cookie Clicker", u: "https://orteil.dashnet.org/cookieclicker/", i: "🍪"},
-            {n: "Temple Run 2", u: "https://images-opensocial.googleusercontent.com/gadgets/proxy?container=fb&url=https://haxball.com.br/temple-run-2/", i: "🗿"},
-            {n: "Angry Birds", u: "https://bcmc.io/angrybirds/", i: "🐦"},
-            {n: "Sonic", u: "https://www.retrogames.cc/embed/40238-sonic-the-hedgehog.html", i: "🦔"},
-            {n: "Geometry Dash", u: "https://geometrydash.io/", i: "🔼"},
-            {n: "Tunnel Rush", u: "https://tunnelrush2.org/", i: "🏎️"},
-            {n: "Subway Surf", u: "https://subwaysurfers.com.co/", i: "🛹"},
-            {n: "Paper.io 2", u: "https://paper-io.com/", i: "📄"},
-            {n: "Basket Random", u: "https://basketrandom.io/", i: "🏀"},
-            {n: "Cut The Rope", u: "https://cuttherope.net/", i: "🍭"},
-            {n: "2048", u: "https://play2048.co/", i: "🔢"}
-        ];
-
-        // Load grid immediately
-        const grid = document.getElementById('main-grid');
-        games.forEach(g => {
-            const div = document.createElement('div');
-            div.className = 'game-item';
-            div.innerHTML = `<div class="game-icon">${g.i}</div><span>${g.n}</span>`;
-            div.onclick = () => {
-                document.getElementById('runner-title').innerText = g.n;
-                document.getElementById('runner-frame').src = g.u;
-                document.getElementById('win-runner').style.display = 'flex';
-                bringFront(document.getElementById('win-runner'));
-            };
-            grid.appendChild(div);
-        });
-
         let activeWin = null, offset = {x:0, y:0}, topZ = 100;
+
+        function openGame(name, url) {
+            document.getElementById('runner-title').innerText = name;
+            document.getElementById('runner-frame').src = url;
+            document.getElementById('win-runner').style.display = 'flex';
+            bringFront(document.getElementById('win-runner'));
+        }
 
         function toggleWin(id) {
             const win = document.getElementById(id);
             if (win.style.display === 'none' || !win.style.display) {
                 win.style.display = 'flex';
-                // Lazy load browser
                 const ifr = win.querySelector('iframe');
                 if (ifr && ifr.dataset.src && !ifr.src) ifr.src = ifr.dataset.src;
                 bringFront(win);
@@ -193,7 +180,7 @@
 
         function closeRunner() {
             document.getElementById('win-runner').style.display = 'none';
-            document.getElementById('runner-frame').src = ""; // Kill process for speed
+            document.getElementById('runner-frame').src = ""; 
         }
 
         function toggleMax(id) { document.getElementById(id).classList.toggle('is-maximized'); }
