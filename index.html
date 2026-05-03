@@ -2,45 +2,42 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>macOS - Safari</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>macOS - iPad Suite</title>
     <style>
         :root {
-            --mac-bg: rgba(255, 255, 255, 0.2);
-            --mac-border: rgba(255, 255, 255, 0.3);
             --mac-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            --title-bg: linear-gradient(to bottom, #f6f6f6, #ebebeb);
+            --glass: rgba(255, 255, 255, 0.2);
         }
 
         body {
             margin: 0;
             height: 100vh;
-            background: url('https://images.wallpapersden.com/image/download/macos-ventura-official-stock_bWlsZ26UmZqaraWkpJRmbmdlrWlnZ2U.jpg') no-repeat center center fixed;
+            background: #000 url('https://images.wallpapersden.com/image/download/apple-logo-minimalist-dark_bmZpZmqamZwarGtpZ3NnZWdraWdrZ2Y.jpg') no-repeat center center fixed;
             background-size: cover;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
             overflow: hidden;
             user-select: none;
+            touch-action: none;
         }
 
         /* Top Menu Bar */
         .menu-bar {
             height: 30px;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             display: flex;
             align-items: center;
             padding: 0 20px;
             color: white;
             font-size: 14px;
-            font-weight: 500;
-            gap: 18px;
-            border-bottom: 0.5px solid rgba(255,255,255,0.2);
+            border-bottom: 0.5px solid rgba(255,255,255,0.1);
             z-index: 9999;
         }
 
-        .menu-bar .bold { font-weight: 700; }
-
-        /* Safari Window */
+        /* Reusable Window Style */
         .window {
             position: absolute;
             background: #fff;
@@ -49,211 +46,191 @@
             display: none;
             flex-direction: column;
             overflow: hidden;
-            z-index: 10;
             border: 0.5px solid rgba(0,0,0,0.2);
+            transition: width 0.2s, height 0.2s;
         }
 
         .title-bar {
-            height: 42px;
-            background: linear-gradient(to bottom, #f6f6f6, #ebebeb);
+            height: 38px;
+            background: var(--title-bg);
             display: flex;
             align-items: center;
-            padding: 0 15px;
-            position: relative;
-            border-bottom: 1px solid #d1d1d1;
+            padding: 0 12px;
+            cursor: grab;
+            flex-shrink: 0;
         }
 
-        .mac-controls {
-            display: flex;
-            gap: 8px;
-            z-index: 2;
-        }
-
-        .dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            cursor: pointer;
-            position: relative;
-        }
-        .close { background: #ff5f57; border: 0.5px solid #e1483f; }
-        .min { background: #ffbd2e; border: 0.5px solid #e1a116; }
-        .max { background: #28c840; border: 0.5px solid #1fa32d; }
+        .mac-controls { display: flex; gap: 8px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; cursor: pointer; border: 0.5px solid rgba(0,0,0,0.1); }
+        .close { background: #ff5f57; }
+        .min { background: #ffbd2e; }
+        .max { background: #28c840; }
 
         .title-text {
-            position: absolute;
-            width: 100%;
-            text-align: center;
-            left: 0;
-            color: #616161;
-            font-size: 13px;
-            font-weight: 400;
-            pointer-events: none;
+            position: absolute; width: 100%; text-align: center; left: 0;
+            color: #616161; font-size: 13px; font-weight: 600; pointer-events: none;
         }
 
-        .content { flex-grow: 1; background: #fff; }
+        .content { flex-grow: 1; background: #fff; overflow: auto; -webkit-overflow-scrolling: touch; }
         iframe { width: 100%; height: 100%; border: none; }
+
+        /* App-Specific Looks */
+        .weather-app { background: linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%); color: white; padding: 20px; text-align: center; }
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: #444; height: 100%; }
+        .calc-btn { background: #e0e0e0; border: none; font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .calc-btn.orange { background: #ff9f0a; color: white; }
+        .stock-item { display: flex; justify-content: space-between; padding: 15px; border-bottom: 1px solid #eee; }
 
         /* The Dock */
         .dock-container {
-            position: fixed;
-            bottom: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(35px);
-            -webkit-backdrop-filter: blur(35px);
-            padding: 10px;
-            border-radius: 22px;
-            display: flex;
-            align-items: flex-end;
-            gap: 15px;
-            border: 0.5px solid rgba(255,255,255,0.3);
-            z-index: 10000;
+            position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%);
+            background: var(--glass); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            padding: 10px 15px; border-radius: 24px; display: flex; gap: 12px;
+            border: 0.5px solid rgba(255,255,255,0.3); z-index: 10000;
         }
 
         .dock-item {
-            width: 55px;
-            height: 55px;
-            background: white;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 35px;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            position: relative;
+            width: 50px; height: 50px; background: white; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; cursor: pointer; position: relative;
+            transition: transform 0.2s; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
-        .dock-item:hover {
-            transform: scale(1.3) translateY(-12px);
-            margin: 0 15px;
-        }
-
-        /* Indicator for open apps */
+        .dock-item:active { transform: scale(0.85); }
         .active-dot {
-            position: absolute;
-            bottom: -6px;
-            width: 4px;
-            height: 4px;
-            background: rgba(255,255,255,0.8);
-            border-radius: 50%;
-            display: none;
+            position: absolute; bottom: -8px; width: 4px; height: 4px;
+            background: white; border-radius: 50%; display: none;
         }
 
-        .maximized { 
-            width: 100vw !important; 
-            height: calc(100vh - 30px) !important; 
-            top: 30px !important; 
-            left: 0 !important; 
-            border-radius: 0; 
-        }
+        .maximized { width: 100vw !important; height: calc(100vh - 30px) !important; top: 30px !important; left: 0 !important; border-radius: 0; }
     </style>
 </head>
 <body>
 
     <div class="menu-bar">
-        <span class="bold"></span>
-        <span class="bold">Safari</span>
-        <span>File</span>
-        <span>Edit</span>
-        <span>View</span>
-        <span>History</span>
-        <span>Bookmarks</span>
-        <span>Window</span>
+        <strong style="margin-right: 15px;"></strong>
+        <span id="active-app-name">Finder</span>
         <span style="flex-grow: 1;"></span>
-        <span id="clock">10:09 PM</span>
+        <span id="clock">--:--</span>
     </div>
 
-    <!-- Safari Window -->
-    <div id="win-safari" class="window" style="width: 1000px; height: 650px; top: 80px; left: 100px;">
-        <div class="title-bar" onmousedown="dragStart(event, 'win-safari')">
-            <div class="mac-controls">
-                <div class="dot close" onclick="closeApp('win-safari')"></div>
-                <div class="dot min" onclick="toggleWin('win-safari')"></div>
-                <div class="dot max" onclick="toggleMax('win-safari')"></div>
-            </div>
-            <div class="title-text">Safari — Rammerhead</div>
+    <!-- Safari -->
+    <div id="win-safari" class="window" style="width: 80vw; height: 60vh; top: 60px; left: 10%;">
+        <div class="title-bar"><div class="mac-controls"><div class="dot close" onclick="closeApp('win-safari')"></div><div class="dot min" onclick="hideApp('win-safari')"></div><div class="dot max" onclick="toggleMax('win-safari')"></div></div><div class="title-text">Safari</div></div>
+        <div class="content"><iframe id="ifr-safari" src=""></iframe></div>
+    </div>
+
+    <!-- Weather -->
+    <div id="win-weather" class="window" style="width: 260px; height: 360px; top: 40px; left: 40px;">
+        <div class="title-bar"><div class="mac-controls"><div class="dot close" onclick="closeApp('win-weather')"></div><div class="dot min" onclick="hideApp('win-weather')"></div></div><div class="title-text">Weather</div></div>
+        <div class="content weather-app">
+            <h2 style="margin:0">Cupertino</h2>
+            <div style="font-size: 50px; margin: 20px 0;">72°</div>
+            <p>Sunny</p>
         </div>
+    </div>
+
+    <!-- Notes -->
+    <div id="win-notes" class="window" style="width: 400px; height: 300px; top: 150px; left: 300px;">
+        <div class="title-bar"><div class="mac-controls"><div class="dot close" onclick="closeApp('win-notes')"></div><div class="dot min" onclick="hideApp('win-notes')"></div><div class="dot max" onclick="toggleMax('win-notes')"></div></div><div class="title-text">Notes</div></div>
+        <div class="content"><textarea style="width:100%; height:100%; border:none; padding:15px; outline:none; font-size:16px; box-sizing:border-box;" placeholder="Type a note..."></textarea></div>
+    </div>
+
+    <!-- Calculator -->
+    <div id="win-calc" class="window" style="width: 230px; height: 320px; top: 300px; left: 100px;">
+        <div class="title-bar"><div class="mac-controls"><div class="dot close" onclick="closeApp('win-calc')"></div><div class="dot min" onclick="hideApp('win-calc')"></div></div><div class="title-text">Calculator</div></div>
         <div class="content">
-            <iframe id="ifr-safari" src=""></iframe>
+            <div style="background:#333; color:white; text-align:right; padding:15px; font-size:24px;">0</div>
+            <div class="calc-grid">
+                <div class="calc-btn">C</div><div class="calc-btn">±</div><div class="calc-btn">%</div><div class="calc-btn orange">÷</div>
+                <div class="calc-btn">7</div><div class="calc-btn">8</div><div class="calc-btn">9</div><div class="calc-btn orange">×</div>
+            </div>
         </div>
     </div>
 
-    <!-- The Dock -->
-    <div class="dock-container">
-        <div class="dock-item" onclick="openSafari()">
-            🌐
-            <div id="indicator-safari" class="active-dot"></div>
+    <!-- Stocks -->
+    <div id="win-stocks" class="window" style="width: 300px; height: 400px; top: 100px; left: 600px;">
+        <div class="title-bar"><div class="mac-controls"><div class="dot close" onclick="closeApp('win-stocks')"></div><div class="dot min" onclick="hideApp('win-stocks')"></div></div><div class="title-text">Stocks</div></div>
+        <div class="content">
+            <div class="stock-item"><span>AAPL</span><span style="color:#28c840;">$245.12</span></div>
+            <div class="stock-item"><span>GOOGL</span><span style="color:#28c840;">$182.44</span></div>
+            <div class="stock-item"><span>TSLA</span><span style="color:red;">$175.01</span></div>
         </div>
+    </div>
+
+    <!-- Dock -->
+    <div class="dock-container">
+        <div class="dock-item" onclick="openApp('win-safari', 'Safari', 'https://www.google.com/search?igu=1')">🌐<div id="dot-win-safari" class="active-dot"></div></div>
+        <div class="dock-item" onclick="openApp('win-weather', 'Weather')">☀️<div id="dot-win-weather" class="active-dot"></div></div>
+        <div class="dock-item" onclick="openApp('win-notes', 'Notes')">📝<div id="dot-win-notes" class="active-dot"></div></div>
+        <div class="dock-item" onclick="openApp('win-calc', 'Calculator')">🔢<div id="dot-win-calc" class="active-dot"></div></div>
+        <div class="dock-item" onclick="openApp('win-stocks', 'Stocks')">📈<div id="dot-win-stocks" class="active-dot"></div></div>
+        <div class="dock-item">⚙️</div>
     </div>
 
     <script>
-        let activeWin = null, offset = {x:0, y:0}, topZ = 100;
+        let topZ = 100, isDragging = false, currentWin = null, startX, startY, initialLeft, initialTop;
 
-        function openSafari() {
-            const win = document.getElementById('win-safari');
-            const ifr = document.getElementById('ifr-safari');
-            const dot = document.getElementById('indicator-safari');
-            
+        function openApp(id, name, url = null) {
+            const win = document.getElementById(id);
             win.style.display = 'flex';
-            dot.style.display = 'block';
-            
-            if(!ifr.src) ifr.src = "https://browser.rammerhead.org";
-            bringFront(win);
+            document.getElementById('dot-' + id).style.display = 'block';
+            if (url) {
+                const ifr = win.querySelector('iframe');
+                if (ifr && !ifr.src) ifr.src = url;
+            }
+            bringFront(win, name);
         }
 
         function closeApp(id) {
-            const win = document.getElementById(id);
-            win.style.display = 'none';
-            document.getElementById('ifr-safari').src = "";
-            document.getElementById('indicator-safari').style.display = 'none';
+            document.getElementById(id).style.display = 'none';
+            document.getElementById('dot-' + id).style.display = 'none';
         }
 
-        function toggleWin(id) {
-            const win = document.getElementById(id);
-            win.style.display = win.style.display === 'none' ? 'flex' : 'none';
-        }
+        function hideApp(id) { document.getElementById(id).style.display = 'none'; }
+        function toggleMax(id) { document.getElementById(id).classList.toggle('maximized'); }
 
-        function toggleMax(id) {
-            document.getElementById(id).classList.toggle('maximized');
-        }
-
-        function bringFront(win) {
+        function bringFront(win, name) {
             win.style.zIndex = ++topZ;
+            document.getElementById('active-app-name').innerText = name;
         }
 
-        function dragStart(e, id) {
-            activeWin = document.getElementById(id);
-            bringFront(activeWin);
-            if(activeWin.classList.contains('maximized')) return;
-            
-            offset.x = e.clientX - activeWin.offsetLeft;
-            offset.y = e.clientY - activeWin.offsetTop;
-            
-            const moveHandler = (ev) => {
-                activeWin.style.left = (ev.clientX - offset.x) + 'px';
-                activeWin.style.top = (ev.clientY - offset.y) + 'px';
-            };
-            
-            const upHandler = () => {
-                document.removeEventListener('mousemove', moveHandler);
-                document.removeEventListener('mouseup', upHandler);
-            };
-
-            document.addEventListener('mousemove', moveHandler);
-            document.addEventListener('mouseup', upHandler);
+        function handleStart(e) {
+            const titleBar = e.target.closest('.title-bar');
+            if (!titleBar) return;
+            currentWin = titleBar.parentElement;
+            if (currentWin.classList.contains('maximized')) return;
+            isDragging = true;
+            bringFront(currentWin, currentWin.querySelector('.title-text').innerText);
+            const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+            startX = clientX; startY = clientY;
+            initialLeft = currentWin.offsetLeft; initialTop = currentWin.offsetTop;
+            currentWin.style.transition = 'none';
         }
 
-        // Live Clock
+        function handleMove(e) {
+            if (!isDragging || !currentWin) return;
+            const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+            currentWin.style.left = (initialLeft + (clientX - startX)) + 'px';
+            currentWin.style.top = (initialTop + (clientY - startY)) + 'px';
+        }
+
+        function handleEnd() { if (currentWin) currentWin.style.transition = ''; isDragging = false; currentWin = null; }
+
+        document.addEventListener('mousedown', handleStart);
+        document.addEventListener('mousemove', handleMove);
+        document.addEventListener('mouseup', handleEnd);
+        document.addEventListener('touchstart', handleStart, { passive: false });
+        document.addEventListener('touchmove', handleMove, { passive: false });
+        document.addEventListener('touchend', handleEnd);
+
         function updateClock() {
             const now = new Date();
             document.getElementById('clock').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         }
-        setInterval(updateClock, 1000);
-        updateClock();
+        setInterval(updateClock, 1000); updateClock();
     </script>
 </body>
 </html>
