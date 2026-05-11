@@ -199,6 +199,21 @@
             font-family: 'Courier New', monospace;
             color: #d63384;
         }
+
+        .content-display {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 13px;
+            color: #333;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
     </style>
 </head>
 <body>
@@ -222,6 +237,7 @@
         </div>
 
         <div id="status" class="status"></div>
+        <div id="content" class="content-display" style="display: none;"></div>
 
         <div class="examples">
             <h3>📖 Try These Examples:</h3>
@@ -229,6 +245,7 @@
                 <li><a onclick="loadUrl('http://example.com')">→ example.com</a></li>
                 <li><a onclick="loadUrl('http://httpbin.org/html')">→ httpbin.org/html</a></li>
                 <li><a onclick="loadUrl('http://www.iana.org')">→ iana.org</a></li>
+                <li><a onclick="loadUrl('https://www.wikipedia.org')">→ wikipedia.org</a></li>
             </ul>
         </div>
 
@@ -238,17 +255,17 @@
                 This educational project demonstrates proxy concepts:
             </p>
             <ul style="margin-left: 20px; color: #666; font-size: 14px; line-height: 1.8;">
-                <li><strong>Request Forwarding:</strong> Your request is sent through a proxy server</li>
-                <li><strong>Protocol Handling:</strong> Supports both HTTP and HTTPS</li>
+                <li><strong>Request Forwarding:</strong> Your request is sent through a proxy server (AllOrigins)</li>
+                <li><strong>CORS Handling:</strong> AllOrigins bypasses CORS restrictions safely</li>
+                <li><strong>Protocol Support:</strong> Works with both HTTP and HTTPS</li>
                 <li><strong>Response Forwarding:</strong> The response is sent back to you</li>
                 <li><strong>Header Management:</strong> Proper HTTP header handling</li>
-                <li><strong>Error Handling:</strong> Graceful handling of connection issues</li>
             </ul>
             <p style="margin-top: 15px;">
-                <strong>⚠️ Note:</strong> This is for educational purposes only. Some websites may not work perfectly due to CORS (Cross-Origin Resource Sharing) restrictions or script blocking.
+                <strong>🔧 Proxy Used:</strong> <a href="https://allorigins.win/" target="_blank" style="color: #667eea; text-decoration: none;">AllOrigins</a> (Free, reliable CORS proxy)
             </p>
             <p style="margin-top: 10px;">
-                <strong>📖 Source Code:</strong> <a href="https://github.com/SERTYUIHVGX/premiumMath" style="color: #667eea; text-decoration: none;">View on GitHub</a>
+                <strong>📖 Source Code:</strong> <a href="https://github.com/SERTYUIHVGX/premiumMath" target="_blank" style="color: #667eea; text-decoration: none;">View on GitHub</a>
             </p>
         </div>
     </div>
@@ -272,6 +289,19 @@
             statusEl.className = `status ${type}`;
         }
 
+        function hideContent() {
+            document.getElementById('content').style.display = 'none';
+        }
+
+        function showContent(data) {
+            const contentEl = document.getElementById('content');
+            contentEl.textContent = data.substring(0, 2000); // Show first 2000 chars
+            if (data.length > 2000) {
+                contentEl.textContent += '\n\n... (content truncated for display)';
+            }
+            contentEl.style.display = 'block';
+        }
+
         function loadUrl(url) {
             document.getElementById('urlInput').value = url;
             fetchProxy();
@@ -282,6 +312,7 @@
             
             if (!url) {
                 showStatus('❌ Please enter a URL', 'error');
+                hideContent();
                 return;
             }
 
@@ -291,12 +322,13 @@
                 fullUrl = 'http://' + url;
             }
 
-            showStatus('Fetching content...', 'loading');
+            showStatus('Fetching content through AllOrigins proxy...', 'loading');
+            hideContent();
 
-            // Use CORS proxy to fetch content
-            const corsProxy = 'https://cors-anywhere.herokuapp.com/';
+            // Use AllOrigins CORS proxy (reliable and always works)
+            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(fullUrl)}`;
             
-            fetch(corsProxy + fullUrl)
+            fetch(proxyUrl)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}`);
@@ -304,13 +336,15 @@
                     return response.text();
                 })
                 .then(data => {
-                    showStatus('✅ Content loaded successfully! Check browser console for details.', 'success');
+                    showStatus(`✅ Success! Retrieved ${data.length} bytes of content.`, 'success');
+                    showContent(data);
                     console.log('URL:', fullUrl);
                     console.log('Content length:', data.length);
                     console.log('First 500 characters:', data.substring(0, 500));
                 })
                 .catch(error => {
-                    showStatus(`❌ Error: ${error.message}. CORS restrictions may apply.`, 'error');
+                    showStatus(`❌ Error: ${error.message}. Please try another URL.`, 'error');
+                    hideContent();
                     console.error('Fetch error:', error);
                 });
         }
