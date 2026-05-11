@@ -223,7 +223,7 @@
 
         <div class="info-box">
             <strong>📚 What is this?</strong><br>
-            This is an educational proxy project to demonstrate how web proxies work. Enter any URL below to see how proxy servers forward requests and responses.
+            This is an educational proxy project to demonstrate how web proxies work. Enter any URL below to see how proxy servers forward requests and responses. Content will be displayed here AND opened in a new tab with a generic name to show proxy obfuscation techniques.
         </div>
 
         <div class="input-group">
@@ -259,6 +259,7 @@
                 <li><strong>CORS Handling:</strong> AllOrigins bypasses CORS restrictions safely</li>
                 <li><strong>Protocol Support:</strong> Works with both HTTP and HTTPS</li>
                 <li><strong>Response Forwarding:</strong> The response is sent back to you</li>
+                <li><strong>Generic Tab Names:</strong> Proxy opens content in tabs with hidden names to appear inconspicuous</li>
                 <li><strong>Header Management:</strong> Proper HTTP header handling</li>
             </ul>
             <p style="margin-top: 15px;">
@@ -302,6 +303,45 @@
             contentEl.style.display = 'block';
         }
 
+        function openProxyTab(htmlContent, originalUrl) {
+            const proxyWindow = window.open('', 'proxy');
+            
+            // Write HTML content to the new tab
+            proxyWindow.document.open();
+            proxyWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>proxy</title>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            padding: 20px;
+                            background: white;
+                        }
+                        .proxy-notice {
+                            background: #fff3cd;
+                            border: 1px solid #ffc107;
+                            padding: 10px;
+                            margin-bottom: 20px;
+                            border-radius: 5px;
+                            color: #856404;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="proxy-notice">
+                        <strong>📡 Proxy Tab</strong><br>
+                        Original URL: <code>${originalUrl}</code><br>
+                        Content forwarded through: <strong>AllOrigins Proxy</strong>
+                    </div>
+                    ${htmlContent}
+                </body>
+                </html>
+            `);
+            proxyWindow.document.close();
+        }
+
         function loadUrl(url) {
             document.getElementById('urlInput').value = url;
             fetchProxy();
@@ -336,11 +376,16 @@
                     return response.text();
                 })
                 .then(data => {
-                    showStatus(`✅ Success! Retrieved ${data.length} bytes of content.`, 'success');
+                    showStatus(`✅ Success! Retrieved ${data.length} bytes of content. Opening in proxy tab...`, 'success');
                     showContent(data);
                     console.log('URL:', fullUrl);
                     console.log('Content length:', data.length);
                     console.log('First 500 characters:', data.substring(0, 500));
+                    
+                    // Open new tab with generic name "proxy" and display content
+                    setTimeout(() => {
+                        openProxyTab(data, fullUrl);
+                    }, 500);
                 })
                 .catch(error => {
                     showStatus(`❌ Error: ${error.message}. Please try another URL.`, 'error');
